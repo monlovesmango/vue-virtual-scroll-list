@@ -1,17 +1,18 @@
+/* eslint-disable space-before-function-paren */
 /**
  * item and slot component both use similar wrapper
  * we need to know their size change at any time
  */
 
-import Vue from 'vue'
+// import Vue from 'vue'
 import { ItemProps, SlotProps } from './props'
 
 const Wrapper = {
-  created () {
+  created() {
     this.shapeKey = this.horizontal ? 'offsetWidth' : 'offsetHeight'
   },
 
-  mounted () {
+  mounted() {
     if (typeof ResizeObserver !== 'undefined') {
       this.resizeObserver = new ResizeObserver(() => {
         this.dispatchSizeChange()
@@ -21,11 +22,11 @@ const Wrapper = {
   },
 
   // since componet will be reused, so disptach when updated
-  updated () {
+  updated() {
     this.dispatchSizeChange()
   },
 
-  beforeDestroy () {
+  beforeDestroy() {
     if (this.resizeObserver) {
       this.resizeObserver.disconnect()
       this.resizeObserver = null
@@ -33,24 +34,25 @@ const Wrapper = {
   },
 
   methods: {
-    getCurrentSize () {
+    getCurrentSize() {
       return this.$el ? this.$el[this.shapeKey] : 0
     },
 
     // tell parent current size identify by unqiue key
-    dispatchSizeChange () {
+    dispatchSizeChange() {
       this.$parent.$emit(this.event, this.uniqueKey, this.getCurrentSize(), this.hasInitial)
     }
   }
 }
 
 // wrapping for item
-export const Item = Vue.component('virtual-list-item', {
+// export const Item = Vue.component('virtual-list-item', {
+export const Item = {
   mixins: [Wrapper],
 
   props: ItemProps,
 
-  render (h) {
+  render(h) {
     const { tag, component, extraProps = {}, index, source, scopedSlots = {}, uniqueKey, slotComponent } = this
     const props = {
       ...extraProps,
@@ -68,15 +70,16 @@ export const Item = Vue.component('virtual-list-item', {
       scopedSlots: scopedSlots
     })])
   }
-})
+}
 
 // wrapping for slot
-export const Slot = Vue.component('virtual-list-slot', {
+// export const Slot = Vue.component('virtual-list-slot', {
+export const Slot = {
   mixins: [Wrapper],
 
   props: SlotProps,
 
-  render (h) {
+  render(h) {
     const { tag, uniqueKey } = this
 
     return h(tag, {
@@ -86,4 +89,4 @@ export const Slot = Vue.component('virtual-list-slot', {
       }
     }, this.$slots.default)
   }
-})
+}
